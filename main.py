@@ -1,6 +1,7 @@
 import pygame
 import math
 from tiles import setupSprites, drawSprites
+from mapStuff import newMap, loadMap
 
 pygame.init()
 screenWidth = 640
@@ -11,20 +12,6 @@ clock = pygame.time.Clock()
 deltaTime = 0.1
 
 tileList = setupSprites()
-'''
-class tiles:
-    def __init__(self, name, image):
-        self.name = name
-        self.sprite = pygame.image.load(image).convert_alpha()
-        self.sprite = pygame.transform.scale(self.sprite,
-                                (self.sprite.get_width() * 2,
-                                self.sprite.get_height() * 2))
-        tileList.append(self)
-
-tiledBackground = tiles("tiled BG", "img/tiledBackground.png")
-dirt = tiles("dirt", "img/tiles/dirtV3.png")
-dirt2 = tiles("dirt2", "img/tiles/dirtBackground.png")
-'''
 
 playerX = 0
 playerY = 0
@@ -39,9 +26,7 @@ camX = 0
 camY = 0
 bgX = 0
 bgY = 0
-tempMap = [(1, 0, 0), (2,0,32)]
-for i in range(30):
-    tempMap.append((1,(i+1)*32, 0))
+currentMap = newMap(21,16, "tiledBackground")
 
 def playerMovement():
     global playerX, playerY
@@ -83,8 +68,6 @@ def camera(X, Y):
         camX = 0
     if camY < 0:
         camY = 0
-    bgX = math.fmod(camX,32)
-    bgY = math.fmod(camY,32)
 
 
 while running:
@@ -93,12 +76,10 @@ while running:
     camera(playerX,playerY)
     print(playerX, playerY, camX,camY)
 
-    screen.blit(tileList[0][1], (-bgX,-bgY))
-
     playerHitbox = pygame.Rect(playerX-camX, playerY-camY, 32,32)
-    pygame.draw.rect(screen, (255, 0, 255), playerHitbox)
 
-    drawSprites(tileList, tempMap, camX, camY)
+    drawSprites(tileList, currentMap, camX, camY)
+    pygame.draw.rect(screen, (255, 0, 255), playerHitbox)
 
     #screen.blit(tileList[1][1], (32-camX,0-camY))
     #screen.blit(tileList[2][1], (32-camX,32-camY))
