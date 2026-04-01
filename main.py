@@ -2,7 +2,9 @@ import pygame
 import math
 
 pygame.init()
-screen = pygame.display.set_mode((640,480))
+screenWidth = 640
+screenHeight = 480
+screen = pygame.display.set_mode((screenWidth,screenHeight))
 running = True
 clock = pygame.time.Clock()
 deltaTime = 0.1
@@ -17,6 +19,7 @@ class tiles:
                                 self.sprite.get_height() * 2))
         tileList.append(self)
 
+tiledBackground = tiles("tiled BG", "img/tiledBackground.png")
 dirt = tiles("dirt", "img/dirtV3.png")
 dirt2 = tiles("dirt2", "img/dirtBackground.png")
 
@@ -29,9 +32,13 @@ keyUpDirection = False
 keyDownDirection = False
 keySprint = False
 
+camX = 0
+camY = 0
+bgX = 0
+bgY = 0
+
 def playerMovement():
-    global playerX
-    global playerY
+    global playerX, playerY
     joyX = 0
     joyY = 0
     joyDist = 0
@@ -40,9 +47,9 @@ def playerMovement():
     if keyLeftDirection:
         joyX = -1
     if keyUpDirection:
-        joyY = 1
-    if keyDownDirection:
         joyY = -1
+    if keyDownDirection:
+        joyY = 1
 
     joyDist = math.sqrt(joyX*joyX+joyY*joyY)
 
@@ -57,16 +64,36 @@ def playerMovement():
         else:
             playerX += playerSpeed * deltaTime * joyX
             playerY += playerSpeed * deltaTime * joyY
-        print(joyDist)
+        if playerX < 0:
+            playerX = 0
+        if playerY < 0:
+            playerY = 0
+        #print(joyDist)
+def camera(X, Y):
+    global camX, camY, bgX, bgY
+    camX = X-320
+    camY = Y-240
+    if camX < 0:
+        camX = 0
+    if camY < 0:
+        camY = 0
+    bgX = math.fmod(camX,32)
+    bgY = math.fmod(camY,32)
+
 
 while running:
     screen.fill((0,0,0))
     playerMovement()
-    camX = playerX
-    camY = playerY
+    camera(playerX,playerY)
+    print(playerX, playerY, camX,camY)
 
-    screen.blit(dirt.sprite, (32-camX,camY))
-    screen.blit(dirt2.sprite, (64-camX,32+camY))
+    screen.blit(tiledBackground.sprite, (-bgX,-bgY))
+
+    playerHitbox = pygame.Rect(playerX-camX, playerY-camY, 32,32)
+    pygame.draw.rect(screen, (255, 0, 255), playerHitbox)
+
+    screen.blit(dirt.sprite, (32-camX,0-camY))
+    screen.blit(dirt2.sprite, (32-camX,32-camY))
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
