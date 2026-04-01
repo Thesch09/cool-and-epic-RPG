@@ -1,5 +1,6 @@
 import pygame
 import math
+from tiles import setupSprites, drawSprites
 
 pygame.init()
 screenWidth = 640
@@ -9,7 +10,8 @@ running = True
 clock = pygame.time.Clock()
 deltaTime = 0.1
 
-tileList = []
+tileList = setupSprites()
+'''
 class tiles:
     def __init__(self, name, image):
         self.name = name
@@ -20,8 +22,9 @@ class tiles:
         tileList.append(self)
 
 tiledBackground = tiles("tiled BG", "img/tiledBackground.png")
-dirt = tiles("dirt", "img/dirtV3.png")
-dirt2 = tiles("dirt2", "img/dirtBackground.png")
+dirt = tiles("dirt", "img/tiles/dirtV3.png")
+dirt2 = tiles("dirt2", "img/tiles/dirtBackground.png")
+'''
 
 playerX = 0
 playerY = 0
@@ -36,6 +39,9 @@ camX = 0
 camY = 0
 bgX = 0
 bgY = 0
+tempMap = [(1, 0, 0), (2,0,32)]
+for i in range(30):
+    tempMap.append((1,(i+1)*32, 0))
 
 def playerMovement():
     global playerX, playerY
@@ -59,8 +65,8 @@ def playerMovement():
         joyY = joyY/joyDist
 
         if keySprint:
-            playerX += (playerSpeed+24) * deltaTime * joyX
-            playerY += (playerSpeed+24) * deltaTime * joyY
+            playerX += (playerSpeed*2) * deltaTime * joyX
+            playerY += (playerSpeed*2) * deltaTime * joyY
         else:
             playerX += playerSpeed * deltaTime * joyX
             playerY += playerSpeed * deltaTime * joyY
@@ -87,13 +93,15 @@ while running:
     camera(playerX,playerY)
     print(playerX, playerY, camX,camY)
 
-    screen.blit(tiledBackground.sprite, (-bgX,-bgY))
+    screen.blit(tileList[0][1], (-bgX,-bgY))
 
     playerHitbox = pygame.Rect(playerX-camX, playerY-camY, 32,32)
     pygame.draw.rect(screen, (255, 0, 255), playerHitbox)
 
-    screen.blit(dirt.sprite, (32-camX,0-camY))
-    screen.blit(dirt2.sprite, (32-camX,32-camY))
+    drawSprites(tileList, tempMap, camX, camY)
+
+    #screen.blit(tileList[1][1], (32-camX,0-camY))
+    #screen.blit(tileList[2][1], (32-camX,32-camY))
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
