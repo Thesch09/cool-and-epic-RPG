@@ -1,7 +1,12 @@
 import random
 import os
 
-def newMap(sizeX, sizeY, background):
+def newMap(sizeX, sizeY, background, name):
+    if sizeX < 20:
+        sizeX = 20
+    if sizeY < 15:
+        sizeY = 15
+
     makingMap = [f"{sizeX},{sizeY}",f"{background}"]
     for i in range(sizeX):
         makingMap.append(f"1,{i*32},0")
@@ -16,7 +21,7 @@ def newMap(sizeX, sizeY, background):
     for i in range(sizeX):
         makingMap.append(f"1,{i*32},{sizeY*32-32}")
     
-    with open("maps/newMap.txt", "w") as maps:
+    with open(f"maps/{name}.txt", "w") as maps:
         for i in makingMap:
             maps.write(f"{i}\n")
             
@@ -43,10 +48,12 @@ def loadMap(selectMap):
                     loadingMap.append(tempSTR)
                     #loadingMap.append(i.split())
                 idx += 1
+        print(type(loadingMap))
         return loadingMap,sizeX, sizeY
     except FileNotFoundError:
         print(f"File {selectMap} does not exist in this folder!")
 
 
-newMap(21,16, "tiledBackground")
-print(loadMap("newMap"))
+newMap(21,16, "tiledBackground", "newMap")
+loadMap("newMap")
+#print(loadMap("newMap"))

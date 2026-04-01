@@ -27,22 +27,23 @@ def setupSprites():
     return sprites
 
 
-def drawSprites(sprites, map, camX, camY):
+def drawSprites(sprites, map, camX, camY, mapX, mapY):
     bgX = math.fmod(camX,32)
     bgY = math.fmod(camY,32)
-    o = 0
-    for i in map:
-        print(map[len(map)-1])
-        #screen.blit(sprites[where in the map list[sprite ID]][the sprites list's sprite slot], (where in the map list[X position]-camX to account for the camera, where in the map[Y position]-camY to account for the camera))
-        if o == 1:
-            if i == "tiledBackground":
-                screen.blit(sprites[0][1], (-bgX,-bgY))
-        elif i != -1 and o != 0:
-            screen.blit(sprites[i[0]][1], (i[1]-camX,i[2]-camY))
-            print(f"Drew {sprites[i[0]][0]} at {i[1]},{i[2]}")
-        else:
-            print("Nothing drawn")
-        o += 1
+    if map[0] == "tiledBackground":
+        screen.blit(sprites[0][1], (-bgX,-bgY))
+    
+    idx = 1 + math.floor(camX/32)
+    idx += mapX*math.floor(camY/32)
+    for y in range(16):
+        for x in range(21):
+            if map[idx] != -1:
+                X = x*32-math.fmod(camX,32)
+                Y = y*32-math.fmod(camY,32)
+                screen.blit(sprites[map[idx][0]][1], (X,Y))
+            idx += 1
+        idx += mapX-21
+
         
 
 sprites = setupSprites()
@@ -52,4 +53,4 @@ for i in sprites:
 
 tempMap = [(1, 0, 0), (2,0,32)]
 print()
-drawSprites(sprites, tempMap, 0, 0)
+#drawSprites(sprites, tempMap, 0, 0,0,0)

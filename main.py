@@ -6,15 +6,17 @@ from mapStuff import newMap, loadMap
 pygame.init()
 screenWidth = 640
 screenHeight = 480
-screen = pygame.display.set_mode((screenWidth,screenHeight))
+flags = pygame.SCALED | pygame.RESIZABLE
+screen = pygame.display.set_mode((screenWidth,screenHeight),flags)
 running = True
 clock = pygame.time.Clock()
 deltaTime = 0.1
+menuType = "overworld"
 
 tileList = setupSprites()
 
-playerX = 0
-playerY = 0
+playerX = 320
+playerY = 240
 playerSpeed = 48
 keyRightDirection = False
 keyLeftDirection = False
@@ -26,10 +28,14 @@ camX = 0
 camY = 0
 bgX = 0
 bgY = 0
-currentMap = newMap(21,16, "tiledBackground")
+#currentMap = newMap(21,16, "tiledBackground")
+newMap(20,15, "tiledBackground", "smallMap")
+newMap(100,100,"tiledBackground", "hugeMap")
+currentMap, sizeX, sizeY = loadMap("hugeMap")
+print(type(currentMap))
 
 def playerMovement():
-    global playerX, playerY
+    global playerX, playerY, sizeX, sizeY
     joyX = 0
     joyY = 0
     joyDist = 0
@@ -59,30 +65,35 @@ def playerMovement():
             playerX = 0
         if playerY < 0:
             playerY = 0
+        if playerX > sizeX*32-32:
+            playerX = sizeX*32-32
+        if playerY > sizeY*32-32:
+            playerY = sizeY*32-32
         #print(joyDist)
 def camera(X, Y):
-    global camX, camY, bgX, bgY
+    global camX, camY, bgX, bgY, sizeX, sizeY
     camX = X-320
     camY = Y-240
     if camX < 0:
         camX = 0
     if camY < 0:
         camY = 0
+    if camX > sizeX*32-640:
+        camX = sizeX*32-640
+    if camY > sizeY*32-480:
+        camY = sizeY*32-480
 
 
 while running:
     screen.fill((0,0,0))
-    playerMovement()
-    camera(playerX,playerY)
-    print(playerX, playerY, camX,camY)
+    if menuType == "overworld":
+        playerMovement()
+        camera(playerX,playerY)
 
     playerHitbox = pygame.Rect(playerX-camX, playerY-camY, 32,32)
 
-    drawSprites(tileList, currentMap, camX, camY)
+    drawSprites(tileList, currentMap, camX, camY, sizeX, sizeY)
     pygame.draw.rect(screen, (255, 0, 255), playerHitbox)
-
-    #screen.blit(tileList[1][1], (32-camX,0-camY))
-    #screen.blit(tileList[2][1], (32-camX,32-camY))
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
