@@ -9,17 +9,17 @@ def newMap(sizeX, sizeY, background, name):
 
     makingMap = [f"{sizeX},{sizeY}",f"{background}"]
     for i in range(sizeX):
-        makingMap.append(f"1,{i*32},0")
+        makingMap.append(f"0,{i*32},0")
     for i in range(sizeY-2):
-        makingMap.append(f"1,0,{(i+1)*32}")
+        makingMap.append(f"0,0,{(i+1)*32}")
         for o in range(sizeX-2):
             if random.randint(1,10) == 1:
-                makingMap.append(f"2,{(o+1)*32},{(i+1)*32}")
+                makingMap.append(f"1,{(o+1)*32},{(i+1)*32}")
             else:
                 makingMap.append(-1)
-        makingMap.append(f"1,{sizeX*32-32},{(i+1)*32}")
+        makingMap.append(f"0,{sizeX*32-32},{(i+1)*32}")
     for i in range(sizeX):
-        makingMap.append(f"1,{i*32},{sizeY*32-32}")
+        makingMap.append(f"0,{i*32},{sizeY*32-32}")
     
     with open(f"maps/{name}.txt", "w") as maps:
         for i in makingMap:
