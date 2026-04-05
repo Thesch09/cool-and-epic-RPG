@@ -42,8 +42,9 @@ camY = 0
 bgX = 0
 bgY = 0
 #currentMap = newMap(21,16, "tiledBackground")
-newMap(20,15, "tiledBackground", "smallMap")
-newMap(100,100,"tiledBackground", "hugeMap")
+newMap(21,16, "newMap")
+newMap(20,15, "smallMap")
+newMap(100,100, "hugeMap")
 currentMap, sizeX, sizeY = loadMap("newMap")
 print(type(currentMap))
 
@@ -142,7 +143,7 @@ while running:
     pygame.draw.rect(screen, (255, 0, 255), playerHitbox)
     
     if menuType == "edit":
-        screen.blit(tileList[firstIMGs[1]+0][1], (0,0))
+        screen.blit(tileList["editMode"], (0,0))
         pygame.draw.rect(screen, (217,201,163), editSearchBox1)
         pygame.draw.rect(screen, (220,220,220), editSearchBox2)
         pygame.draw.rect(screen, (220,220,220), editSearchBox3)
@@ -151,7 +152,7 @@ while running:
         else:
             mapSearchText = smallFont.render(f"{mapSearch}", False, fontNormalColour)
         if type(result) != str: # I want the maps to always show, as long as the query matched a map name.
-            showResultsMap
+            showResultsMap(result, tileList,screen, 70, smallFont)
         screen.blit(mapSearchText, (382,52))
         screen.blit(noMapSearchResults, (382,70))
         #screen.blit(dialogue,(0,32))

@@ -6,31 +6,32 @@ from tiles import setupSprites, firstIMGs
 setupSprites("setup")
 print(firstIMGs[1])
 
-def newMap(sizeX, sizeY, background, name):
+def writeFile(text,file): #write to a file
+    text = text+"\n"
+    file.write(text)
+
+def newMap(sizeX, sizeY, name, background = "tiledBackground"):
     if sizeX < 20:
         sizeX = 20
     if sizeY < 15:
         sizeY = 15
-
-    makingMap = [f"{sizeX},{sizeY}",f"{background}"]
-    for i in range(sizeX):
-        makingMap.append(f"0,{i*32},0")
-    for i in range(sizeY-2):
-        makingMap.append(f"0,0,{(i+1)*32}")
-        for o in range(sizeX-2):
-            if random.randint(1,10) == 1:
-                makingMap.append(f"1,{(o+1)*32},{(i+1)*32}")
-            else:
-                makingMap.append(-1)
-        makingMap.append(f"0,{sizeX*32-32},{(i+1)*32}")
-    for i in range(sizeX):
-        makingMap.append(f"0,{i*32},{sizeY*32-32}")
     
-    with open(f"maps/{name}.txt", "w") as maps:
-        for i in makingMap:
-            maps.write(f"{i}\n")
-            
-    return makingMap
+    with open(f"maps/{name}.txt","w") as maps:
+        writeFile(f"{sizeX},{sizeY}", maps)
+        writeFile(f"{background}",maps)
+        for i in range(sizeX):
+            writeFile("dirtBackground",maps)
+        for i in range(sizeY-2):
+            writeFile("dirtBackground",maps)
+            for o in range(sizeX-2):
+                if random.randint(1,10) == 1:
+                    writeFile("dirtV3",maps)
+                else:
+                    maps.write("-1\n")
+            writeFile("dirtBackground",maps)
+        for i in range(sizeX):
+            writeFile("dirtBackground",maps)
+    return
 
 def loadMap(selectMap):
     loadingMap = []
@@ -48,10 +49,8 @@ def loadMap(selectMap):
                     tempSTR = i.split()
                     loadingMap.append(int(tempSTR[0]))
                 else:
-                    tempSTR = i.strip().split(",")
-                    tempSTR = (int(tempSTR[0]), int(tempSTR[1]), int(tempSTR[2]))
+                    tempSTR = i.strip()
                     loadingMap.append(tempSTR)
-                    #loadingMap.append(i.split())
                 idx += 1
         print(type(loadingMap))
         return loadingMap,sizeX, sizeY
@@ -68,22 +67,30 @@ def mapSearching(input):
     else:
         return searchResults
     
-def showResultsMap(results, sprites, screen, startX, startY):
+def showResultsMap(results, sprites, screen, startY, font):
+    entry = 0
     for map in results:
         print(map.split(".txt")[0])
         with open(f"maps/{map}") as mapFile:
             idx = 0
             for mapFileLine in mapFile:
-                if idx == 1:
+                if idx == 0:
+                    lineSplit = mapFileLine.split(",")
+                    sizeX = lineSplit[0]
+                    sizeY = lineSplit[1].split()[0]
+                    text = font.render(f"{sizeX}x{sizeY}", False, (0,0,0))
+                    screen.blit(text,(574-text.get_width(),startY+10*entry))
+                elif idx == 1:
                     if mapFileLine == "tiledBackground\n":
-                        screen.blit(sprites[firstIMGs[1]+1][1], (0,0))
-                    print(mapFileLine)
+                        screen.blit(sprites["mapIconTiled"], (382,startY+10*entry))
+                else:
                     break
-                idx+=1
-
+                idx += 1
+            text = font.render(f"{map.split(".txt")[0]}", False, (0,0,0))
+            screen.blit(text, (392,startY+10*entry))
+        entry += 1
 
 mapSearching("ner")
-newMap(21,16, "tiledBackground", "newMap")
 result = mapSearching("map")
 if type(result) == str:
     print("egg")

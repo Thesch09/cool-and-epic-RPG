@@ -10,7 +10,7 @@ screen = pygame.display.set_mode((screenWidth,screenHeight))
 def setupSprites(mode):
     global firstIMGs
     firstIMGs = [-1,-1,-1]
-    sprites = []
+    sprites = {}
     folders = os.listdir("img")
     idx = 0
     for subFolder in folders:
@@ -30,8 +30,8 @@ def setupSprites(mode):
                     sprite = pygame.transform.scale(sprite,
                                         (sprite.get_width() * 2,
                                         sprite.get_height() * 2))
-            file = (f"{file}", sprite)
-            sprites.append(file)
+            #file = (f"{file}", sprite)
+            sprites.update({f"{file.split(".png")[0]}":sprite})
             idx += 1
         #print(f"{subFolder}: {os.listdir(f"img/{subFolder}")}")
     print(sprites)
@@ -50,7 +50,7 @@ def drawSprites(sprites, map, camX, camY, mapX, edit):
         idx = 1 + math.floor(camX/32)
         idx += mapX*math.floor(camY/32)
     if map[0] == "tiledBackground":
-        screen.blit(sprites[firstIMGs[0]-0][1], (-bgX,-bgY))
+        screen.blit(sprites["tiledBackground"], (-bgX,-bgY))
     
     for y in range(16):
         for x in range(21):
@@ -62,7 +62,7 @@ def drawSprites(sprites, map, camX, camY, mapX, edit):
                     else:
                         X = x*32-math.fmod(camX,32)
                         Y = y*32-math.fmod(camY,32)
-                    screen.blit(sprites[map[idx][0]][1], (X,Y))
+                    screen.blit(sprites[map[idx]], (X,Y))
             except IndexError:
                 pass
             idx += 1
@@ -72,9 +72,6 @@ def drawSprites(sprites, map, camX, camY, mapX, edit):
 
 sprites = setupSprites("setup")
 for i in sprites:
-    print(i[0])
-    screen.blit(i[1])
-
-tempMap = [(1, 0, 0), (2,0,32)]
-print()
-#drawSprites(sprites, tempMap, 0, 0,0,0)
+    print(i)
+    print(sprites[i])
+    screen.blit(sprites[i])

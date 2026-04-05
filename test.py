@@ -14,3 +14,8 @@ x = 0
 for i in range(96):
     tempVar = math.fmod(i, 32)
     print(tempVar)
+
+dictTest = {"value":0, "val2":"egg"}
+for i in dictTest:
+    print(i)
+    print(dictTest[i])
