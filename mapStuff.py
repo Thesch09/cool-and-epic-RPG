@@ -1,5 +1,10 @@
 import random
 import os
+import pygame
+from tiles import setupSprites, firstIMGs
+
+setupSprites("setup")
+print(firstIMGs[1])
 
 def newMap(sizeX, sizeY, background, name):
     if sizeX < 20:
@@ -53,7 +58,48 @@ def loadMap(selectMap):
     except FileNotFoundError:
         print(f"File {selectMap} does not exist in this folder!")
 
+def mapSearching(input):
+    searchResults = []
+    for map in os.listdir(f"maps"):
+        if input.lower() in map.lower().split(".txt")[0]:
+            searchResults.append(map)
+    if searchResults == []:
+        return "No maps found..."
+    else:
+        return searchResults
+    
+def showResultsMap(results, sprites, screen, startX, startY):
+    for map in results:
+        print(map.split(".txt")[0])
+        with open(f"maps/{map}") as mapFile:
+            idx = 0
+            for mapFileLine in mapFile:
+                if idx == 1:
+                    if mapFileLine == "tiledBackground\n":
+                        screen.blit(sprites[firstIMGs[1]+1][1], (0,0))
+                    print(mapFileLine)
+                    break
+                idx+=1
 
+
+mapSearching("ner")
 newMap(21,16, "tiledBackground", "newMap")
+result = mapSearching("map")
+if type(result) == str:
+    print("egg")
+else:
+    pass
+    #showResultsMap(result, 0,0)
 loadMap("newMap")
 #print(loadMap("newMap"))
+'''
+running = False
+while running:
+    screen.fill((0,0,0))
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+pygame.quit()
+'''

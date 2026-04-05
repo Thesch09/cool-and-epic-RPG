@@ -8,8 +8,8 @@ screenWidth = 640
 screenHeight = 480
 screen = pygame.display.set_mode((screenWidth,screenHeight))
 def setupSprites(mode):
-    global firstBackground
-    firstBackground = -1
+    global firstIMGs
+    firstIMGs = [-1,-1,-1]
     sprites = []
     folders = os.listdir("img")
     idx = 0
@@ -18,8 +18,12 @@ def setupSprites(mode):
         folderSubFolders = os.listdir(f"img/{subFolder}")
         for file in folderSubFolders:
             print(f"\t{file}")
-            if subFolder == "_backgrounds" and firstBackground == -1:
-                firstBackground = idx
+            if subFolder == "_backgrounds" and firstIMGs[0] == -1:
+                firstIMGs[0] = idx
+            if subFolder == "_GUI" and firstIMGs[1] == -1:
+                firstIMGs[1] = idx
+            if subFolder == "tiles" and firstIMGs[2] == -1:
+                firstIMGs[2] = idx
             sprite = pygame.image.load(f"img/{subFolder}/{file}").convert_alpha()
             if mode == "setup":
                 if subFolder == "_backgrounds" or subFolder == "tiles":
@@ -46,7 +50,7 @@ def drawSprites(sprites, map, camX, camY, mapX, edit):
         idx = 1 + math.floor(camX/32)
         idx += mapX*math.floor(camY/32)
     if map[0] == "tiledBackground":
-        screen.blit(sprites[firstBackground][1], (-bgX,-bgY))
+        screen.blit(sprites[firstIMGs[0]-0][1], (-bgX,-bgY))
     
     for y in range(16):
         for x in range(21):

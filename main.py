@@ -1,7 +1,7 @@
 import pygame
 import math
-from tiles import setupSprites, drawSprites
-from mapStuff import newMap, loadMap
+from tiles import setupSprites, drawSprites, firstIMGs
+from mapStuff import newMap, loadMap, mapSearching, showResultsMap
 
 pygame.init()
 screenWidth = 640
@@ -11,8 +11,13 @@ screen = pygame.display.set_mode((screenWidth,screenHeight),flags)
 running = True
 clock = pygame.time.Clock()
 deltaTime = 0.1
+# Fonts
+smallFont = pygame.font.Font("fonts/Game Font Small.ttf", 8)
+normalFont = pygame.font.Font("fonts/Game Font Normal.ttf", 16)
+fontNormalColour = (0,0,0)
+
 menuType = "overworld"
-writing = "false"
+writing = False
 
 tileList = setupSprites("setup")
 
@@ -24,6 +29,13 @@ keyLeftDirection = False
 keyUpDirection = False
 keyDownDirection = False
 keySprint = False
+ctrlDown = False
+
+mapSearchText = smallFont.render("This is a temp text. Let's", False, (120,120,120))
+noMapSearchResults = smallFont.render("", False, fontNormalColour)
+result = ""
+mapSearch = ""
+dialogue = normalFont.render("This is a temp Text. Let's", False, (120, 120,255))
 
 camX = 0
 camY = 0
@@ -70,14 +82,14 @@ def playerMovement(menuType):
             playerY += playerSpeed * deltaTime * joyY * menuType
         
         if menuType == 2:
-            if playerX > sizeX*16:
-                playerX = sizeX*16
-            if playerY > sizeY*16:
-                playerY = sizeY*16
-            if playerX < 16:
-                playerX = 16
-            if playerY < 16:
-                playerY = 16
+            if playerX > sizeX*16-16:
+                playerX = sizeX*16-16
+            if playerY > sizeY*16-16:
+                playerY = sizeY*16-16
+            if playerX < 0:
+                playerX = 0
+            if playerY < 0:
+                playerY = 0
         else:
             if playerX > sizeX*32-32:
                 playerX = sizeX*32-32
@@ -111,7 +123,9 @@ def camera(X, Y):
         if camY > sizeY*32-480:
             camY = sizeY*32-480
 
-
+editSearchBox1 = pygame.Rect(376,48,200,100)
+editSearchBox2 = pygame.Rect(378,50,196,14)
+editSearchBox3 = pygame.Rect(378,68,196,14)
 while running:
     screen.fill((0,0,0))
     if menuType == "overworld" or menuType == "edit":
@@ -119,42 +133,81 @@ while running:
         camera(playerX,playerY)
 
     if menuType == "edit":
-        playerHitbox = pygame.Rect(playerX-camX, playerY-camY, 16,16)
+        playerHitbox = pygame.Rect(playerX-camX+16, playerY-camY+16, 16,16)
+            
     else:
         playerHitbox = pygame.Rect(playerX-camX, playerY-camY, 32,32)
 
     drawSprites(tileList, currentMap, camX, camY, sizeX, menuType)
     pygame.draw.rect(screen, (255, 0, 255), playerHitbox)
+    
     if menuType == "edit":
-        screen.blit(tileList[3][1], (0,0))
+        screen.blit(tileList[firstIMGs[1]+0][1], (0,0))
+        pygame.draw.rect(screen, (217,201,163), editSearchBox1)
+        pygame.draw.rect(screen, (220,220,220), editSearchBox2)
+        pygame.draw.rect(screen, (220,220,220), editSearchBox3)
+        if mapSearch == "":
+            mapSearchText = smallFont.render(f"Search", False, (120,120,120))
+        else:
+            mapSearchText = smallFont.render(f"{mapSearch}", False, fontNormalColour)
+        if type(result) != str: # I want the maps to always show, as long as the query matched a map name.
+            showResultsMap
+        screen.blit(mapSearchText, (382,52))
+        screen.blit(noMapSearchResults, (382,70))
+        #screen.blit(dialogue,(0,32))
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        if event.type == pygame.MOUSEBUTTONDOWN and menuType == "edit":
+            if editSearchBox2.collidepoint(event.pos):
+                writing = True
+
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_RIGHT or event.key == pygame.K_d:
-                keyRightDirection = True
-            if event.key == pygame.K_LEFT or event.key == pygame.K_a:
-                keyLeftDirection = True
-            if event.key == pygame.K_UP or event.key == pygame.K_w:
-                keyUpDirection = True
-            if event.key == pygame.K_DOWN or event.key == pygame.K_s:
-                keyDownDirection = True
-            if event.key == pygame.K_LSHIFT:
-                keySprint = True
-            if event.key == pygame.K_BACKSLASH:
-                if menuType == "overworld":
-                    tileList = setupSprites("edit")
-                    menuType = "edit"
-                    playerX = playerX / 2
-                    playerY = playerY / 2
-                    print("edit")
-                elif menuType == "edit":
-                    tileList = setupSprites("setup")
-                    menuType = "overworld"
-                    playerX = playerX * 2
-                    playerY = playerY * 2
-                    print("not edit")
+            if not writing:
+                if event.key == pygame.K_RIGHT or event.key == pygame.K_d:
+                    keyRightDirection = True
+                if event.key == pygame.K_LEFT or event.key == pygame.K_a:
+                    keyLeftDirection = True
+                if event.key == pygame.K_UP or event.key == pygame.K_w:
+                    keyUpDirection = True
+                if event.key == pygame.K_DOWN or event.key == pygame.K_s:
+                    keyDownDirection = True
+                if event.key == pygame.K_LSHIFT:
+                    keySprint = True
+                if event.key == pygame.K_BACKSLASH:
+                    if menuType == "overworld":
+                        tileList = setupSprites("edit")
+                        menuType = "edit"
+                        playerX = playerX / 2
+                        playerY = playerY / 2
+                        result = mapSearching("")
+                        print("edit")
+                    elif menuType == "edit":
+                        tileList = setupSprites("setup")
+                        menuType = "overworld"
+                        playerX = playerX * 2
+                        playerY = playerY * 2
+                        print("not edit")
+            elif writing:
+                if event.key == pygame.K_ESCAPE:
+                    writing = False
+                elif event.key == pygame.K_BACKSPACE:
+                    if ctrlDown:
+                        mapSearch = ""
+                    else:
+                        mapSearch = mapSearch[:-1]
+                elif event.key == pygame.K_LCTRL:
+                    ctrlDown = True
+                else:
+                    mapSearch += event.unicode
+
+                if writing: # To make it so that the map search code doesn't run always, it is in here. It checks if writing is still true so that it doesn't run if the player stopped searching (by pressing escape)
+                    result = mapSearching(mapSearch)
+                    if type(result) == str:
+                        noMapSearchResults = smallFont.render("No results...", False, fontNormalColour)
+                    else:
+                        noMapSearchResults = smallFont.render("", False, fontNormalColour)
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_RIGHT or event.key == pygame.K_d:
                 keyRightDirection = False
@@ -166,6 +219,8 @@ while running:
                 keyDownDirection = False
             if event.key == pygame.K_LSHIFT:
                 keySprint = False
+            if event.key == pygame.K_LCTRL:
+                ctrlDown = False
 
 
     pygame.display.flip()
