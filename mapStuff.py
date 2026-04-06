@@ -46,8 +46,7 @@ def loadMap(selectMap):
                 elif idx == 1:
                     loadingMap.append(i.split()[0])
                 elif i == "-1\n":
-                    tempSTR = i.split()
-                    loadingMap.append(int(tempSTR[0]))
+                    loadingMap.append(-1)
                 else:
                     tempSTR = i.strip()
                     loadingMap.append(tempSTR)
@@ -69,8 +68,11 @@ def mapSearching(input):
     
 def showResultsMap(results, sprites, screen, startY, font):
     entry = 0
+    hitboxes = {}
     for map in results:
-        print(map.split(".txt")[0])
+        hitbox = pygame.rect.Rect(378, startY+13*entry-2, 196, 13)
+        pygame.draw.rect(screen, (220,220,220), hitbox)
+        hitboxes.update({map:hitbox})
         with open(f"maps/{map}") as mapFile:
             idx = 0
             for mapFileLine in mapFile:
@@ -79,16 +81,17 @@ def showResultsMap(results, sprites, screen, startY, font):
                     sizeX = lineSplit[0]
                     sizeY = lineSplit[1].split()[0]
                     text = font.render(f"{sizeX}x{sizeY}", False, (0,0,0))
-                    screen.blit(text,(574-text.get_width(),startY+10*entry))
+                    screen.blit(text,(574-text.get_width(),startY+12*entry))
                 elif idx == 1:
                     if mapFileLine == "tiledBackground\n":
-                        screen.blit(sprites["mapIconTiled"], (382,startY+10*entry))
+                        screen.blit(sprites["mapIconTiled"], (382,startY+12*entry))
                 else:
                     break
                 idx += 1
             text = font.render(f"{map.split(".txt")[0]}", False, (0,0,0))
-            screen.blit(text, (392,startY+10*entry))
+            screen.blit(text, (392,startY+12*entry))
         entry += 1
+    return hitboxes
 
 mapSearching("ner")
 result = mapSearching("map")
