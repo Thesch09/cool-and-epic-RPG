@@ -13,7 +13,7 @@ clock = pygame.time.Clock()
 deltaTime = 0.1
 # Fonts
 smallFont = pygame.font.Font("fonts/Game Font Small.ttf", 8)
-normalFont = pygame.font.Font("fonts/Game Font Normal.ttf", 16)
+normalFont = pygame.font.Font("fonts/Game Font Normal.ttf", 8)
 fontNormalColour = (0,0,0)
 
 menuType = "overworld"
@@ -44,15 +44,13 @@ noMapSearchResults = smallFont.render("", False, fontNormalColour)
 result = ""
 mapSearch = ""
 dialogue = normalFont.render("This is a temp Text. Let's", False, (120, 120,255))
+mapDifferenceExists = True
 
 camX = 0
 camY = 0
 bgX = 0
 bgY = 0
 #currentMap = newMap(21,16, "tiledBackground")
-newMap(21,16, "newMap")
-newMap(20,15, "smallMap")
-newMap(100,100, "hugeMap")
 currentMap, sizeX, sizeY = loadMap(mapName)
 print(type(currentMap))
 
@@ -136,19 +134,20 @@ def camera(X, Y):
 
 editSearchBox1 = pygame.Rect(376,48,200,100)
 editSearchBox2 = pygame.Rect(378,50,196,14)
-editSearchBox3 = pygame.Rect(378,68,196,14)
+mapDifferencePopupSize = 100
+mapDifferencePopup = pygame.Rect(screenWidth/2-mapDifferencePopupSize,screenHeight/2-mapDifferencePopupSize,mapDifferencePopupSize*2,mapDifferencePopupSize-25)
+mapDifferencePopupInside = pygame.Rect(screenWidth/2-(mapDifferencePopupSize-2),screenHeight/2-mapDifferencePopupSize+2,mapDifferencePopupSize*2-4,mapDifferencePopupSize-29)
+mapDifferenceSave = pygame.Rect(screenWidth/2-mapDifferencePopupSize*1.3,screenHeight/2-25, 50,50)
 while running:
     mousePos = pygame.mouse.get_pos()
-    mouseHitbox = pygame.rect.Rect(mousePos[0]-4, mousePos[1]-4, 8,8)
+    mouseHitbox = pygame.rect.Rect(mousePos[0]-2, mousePos[1]-2, 8,8)
 
     screen.fill((0,0,0))
     if menuType == "overworld" or menuType == "edit":
         playerMovement(menuType)
         camera(playerX,playerY)
-
     if menuType == "edit":
-        playerHitbox = pygame.Rect(playerX-camX+16, playerY-camY+16, 16,16)
-            
+        playerHitbox = pygame.Rect(playerX-camX+16, playerY-camY+16, 16,16)       
     else:
         playerHitbox = pygame.Rect(playerX-camX, playerY-camY, 32,32)
 
@@ -168,24 +167,32 @@ while running:
             searchResultHitboxes = showResultsMap(result, tileList,screen, 70, smallFont)
             idx = 0
             for i in searchResultHitboxes:
-                #pass
-                #pygame.draw.rect(screen, (220,220-20*idx,220), searchResultHitboxes[i])
                 mouseCollidesWithMaps = searchResultHitboxes[i].colliderect(mouseHitbox)
                 if mouseCollidesWithMaps:
                     if LMBpressed and clickCooldown <= 0:
-                        checkForDifferencesMap(currentMap,mapName, sizeX, sizeY)
-                        mapName = i.split(".txt")[0]
-                        currentMap, sizeX, sizeY = loadMap(mapName)
-                        print(mapName)
                         clickCooldown = 0.5
-                        print(f"loaded {i}")
-                        
+                        if not checkForDifferencesMap(currentMap,mapName, sizeX, sizeY):
+                            mapName = i.split(".txt")[0]
+                            currentMap, sizeX, sizeY = loadMap(mapName)
+                            print(mapName)
+                            print(f"loaded {i}")
+                            #mapDifferenceExists = False
+                        else:
+                            mapDifferenceExists = True
                     break
                 idx += 1
         screen.blit(mapSearchText, (382,52))
         screen.blit(noMapSearchResults, (382,70))
         #screen.blit(dialogue,(0,32))
         pygame.draw.rect(screen, (0,0,0), mouseHitbox)
+
+        if mapDifferenceExists:
+            mapNotSavedText = smallFont.render(f"Map '{mapName}' has not been saved!", False, (0,0,0))
+            pygame.draw.rect(screen,(217,201,163), mapDifferencePopup)
+            pygame.draw.rect(screen,(255,255,255), mapDifferencePopupInside)
+            pygame.draw.rect(screen,(0,255,0), mapDifferenceSave)
+            screen.blit(mapNotSavedText, (screenWidth/2-mapNotSavedText.get_width()/2,screenHeight/2-95))
+
         clickCooldown -= 1*deltaTime
 
     for event in pygame.event.get():

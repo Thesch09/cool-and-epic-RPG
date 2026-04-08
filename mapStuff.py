@@ -118,9 +118,7 @@ if type(result) == str:
     print("egg")
 else:
     pass
-    #showResultsMap(result, 0,0)
 loadMap("newMap")
-#print(loadMap("newMap"))
 '''
 running = False
 while running:
