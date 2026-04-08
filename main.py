@@ -1,7 +1,7 @@
 import pygame
 import math
 from tiles import setupSprites, drawSprites, firstIMGs
-from mapStuff import newMap, loadMap, mapSearching, showResultsMap
+from mapStuff import newMap, loadMap, mapSearching, showResultsMap, checkForDifferencesMap
 
 pygame.init()
 screenWidth = 640
@@ -18,6 +18,7 @@ fontNormalColour = (0,0,0)
 
 menuType = "overworld"
 writing = False
+mapName = "newMap"
 
 tileList = setupSprites("setup")
 
@@ -52,7 +53,7 @@ bgY = 0
 newMap(21,16, "newMap")
 newMap(20,15, "smallMap")
 newMap(100,100, "hugeMap")
-currentMap, sizeX, sizeY = loadMap("newMap")
+currentMap, sizeX, sizeY = loadMap(mapName)
 print(type(currentMap))
 
 def playerMovement(menuType):
@@ -172,10 +173,13 @@ while running:
                 mouseCollidesWithMaps = searchResultHitboxes[i].colliderect(mouseHitbox)
                 if mouseCollidesWithMaps:
                     if LMBpressed and clickCooldown <= 0:
-                        currentMap, sizeX, sizeY = loadMap(i.split(".txt")[0])
-                        
+                        checkForDifferencesMap(currentMap,mapName, sizeX, sizeY)
+                        mapName = i.split(".txt")[0]
+                        currentMap, sizeX, sizeY = loadMap(mapName)
+                        print(mapName)
                         clickCooldown = 0.5
-                        print(f"select {i}")
+                        print(f"loaded {i}")
+                        
                     break
                 idx += 1
         screen.blit(mapSearchText, (382,52))

@@ -14,7 +14,6 @@ def setupSprites(mode):
     folders = os.listdir("img")
     idx = 0
     for subFolder in folders:
-        print(subFolder)
         folderSubFolders = os.listdir(f"img/{subFolder}")
         for file in folderSubFolders:
             print(f"\t{file}")
@@ -33,8 +32,6 @@ def setupSprites(mode):
             #file = (f"{file}", sprite)
             sprites.update({f"{file.split(".png")[0]}":sprite})
             idx += 1
-        #print(f"{subFolder}: {os.listdir(f"img/{subFolder}")}")
-    print(sprites)
     return sprites
 
 def drawSprites(sprites, map, camX, camY, mapX, edit):

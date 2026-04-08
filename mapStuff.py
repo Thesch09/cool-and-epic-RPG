@@ -93,6 +93,25 @@ def showResultsMap(results, sprites, screen, startY, font):
         entry += 1
     return hitboxes
 
+def checkForDifferencesMap(updatedMap, mapAsFile, sizeX, sizeY):
+    with open(f"maps/{mapAsFile}.txt") as map:
+        idx = 0
+        mapList = [f"{sizeX},{sizeY}"]
+        for index in updatedMap:
+            mapList.append(index)
+        print(mapList)
+        #print(updatedMap)
+        print(len(mapList))
+        for line in map:
+            try:
+                if str(mapList[idx]) != line.split()[0]:  
+                    print("different")
+                    return True
+                idx += 1
+            except IndexError:
+                print("nothing different")
+                return False
+
 mapSearching("ner")
 result = mapSearching("map")
 if type(result) == str:
