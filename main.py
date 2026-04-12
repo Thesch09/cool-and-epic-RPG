@@ -1,6 +1,6 @@
 import pygame
 import math
-from tiles import setupSprites, drawSprites, firstIMGs
+from tiles import setupSprites, drawSprites, resizeSprites
 from mapStuff import newMap, loadMap, mapSearching, showResultsMap, checkForDifferencesMap
 
 pygame.init()
@@ -20,7 +20,8 @@ menuType = "overworld"
 writing = False
 mapName = "newMap"
 
-tileList = setupSprites("setup")
+tileList = setupSprites()
+resizeSprites(tileList, 2)
 
 playerX = 320
 playerY = 240
@@ -155,7 +156,7 @@ while running:
     pygame.draw.rect(screen, (255, 0, 255), playerHitbox)
     
     if menuType == "edit":
-        screen.blit(tileList["editMode"], (0,0))
+        screen.blit(tileList["editMode"].sprite, (0,0))
         pygame.draw.rect(screen, (217,201,163), editSearchBox1)
         pygame.draw.rect(screen, (220,220,220), editSearchBox2)
         #pygame.draw.rect(screen, (220,220,220), editSearchBox3)
@@ -228,14 +229,16 @@ while running:
                     keySprint = True
                 if event.key == pygame.K_BACKSLASH:
                     if menuType == "overworld":
-                        tileList = setupSprites("edit")
+                        tileList = setupSprites()
+                        resizeSprites(tileList,"base")
                         menuType = "edit"
                         playerX = playerX / 2
                         playerY = playerY / 2
                         result = mapSearching("")
                         print("edit")
                     elif menuType == "edit":
-                        tileList = setupSprites("setup")
+                        tileList = setupSprites()
+                        resizeSprites(tileList, 2)
                         menuType = "overworld"
                         playerX = playerX * 2
                         playerY = playerY * 2

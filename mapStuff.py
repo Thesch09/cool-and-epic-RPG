@@ -1,10 +1,9 @@
 import random
 import os
 import pygame
-from tiles import setupSprites, firstIMGs
+from tiles import setupSprites
 
-setupSprites("setup")
-print(firstIMGs[1])
+setupSprites()
 
 def writeFile(text,file): #write to a file
     text = text+"\n"
@@ -84,7 +83,7 @@ def showResultsMap(results, sprites, screen, startY, font):
                     screen.blit(text,(574-text.get_width(),startY+12*entry))
                 elif idx == 1:
                     if mapFileLine == "tiledBackground\n":
-                        screen.blit(sprites["mapIconTiled"], (382,startY+12*entry))
+                        screen.blit(sprites["mapIconTiled"].sprite, (382,startY+12*entry))
                 else:
                     break
                 idx += 1
