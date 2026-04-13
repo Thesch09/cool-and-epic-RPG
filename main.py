@@ -133,8 +133,8 @@ def camera(X, Y):
 
 
 
-editSearchBox1 = pygame.Rect(376,48,200,100)
-editSearchBox2 = pygame.Rect(378,50,196,14)
+editSearchBoxBackground = pygame.Rect(368,16,128,240)
+editSearchBox2 = pygame.Rect(368,16,128,12)
 mapDifferencePopupSize = 100
 mapDifferencePopup = pygame.Rect(screenWidth/2-mapDifferencePopupSize,screenHeight/2-mapDifferencePopupSize,mapDifferencePopupSize*2,mapDifferencePopupSize-25)
 mapDifferencePopupInside = pygame.Rect(screenWidth/2-(mapDifferencePopupSize-2),screenHeight/2-mapDifferencePopupSize+2,mapDifferencePopupSize*2-4,mapDifferencePopupSize-29)
@@ -156,16 +156,15 @@ while running:
     pygame.draw.rect(screen, (255, 0, 255), playerHitbox)
     
     if menuType == "edit":
-        screen.blit(tileList["editMode"].sprite, (0,0))
-        pygame.draw.rect(screen, (217,201,163), editSearchBox1)
+        pygame.draw.rect(screen, (255,255,255), editSearchBoxBackground)
+        screen.blit(tileList["editor-base"].sprite, (0,0))
         pygame.draw.rect(screen, (220,220,220), editSearchBox2)
-        #pygame.draw.rect(screen, (220,220,220), editSearchBox3)
         if mapSearch == "":
             mapSearchText = smallFont.render(f"Search", False, (120,120,120))
         else:
             mapSearchText = smallFont.render(f"{mapSearch}", False, fontNormalColour)
         if type(result) != str: # I want the maps to always show, as long as the query matched a map name.
-            searchResultHitboxes = showResultsMap(result, tileList,screen, 70, smallFont)
+            searchResultHitboxes = showResultsMap(result, tileList,screen, 368, 34, smallFont, mouseHitbox)
             idx = 0
             for i in searchResultHitboxes:
                 mouseCollidesWithMaps = searchResultHitboxes[i].colliderect(mouseHitbox)
@@ -177,24 +176,31 @@ while running:
                             currentMap, sizeX, sizeY = loadMap(mapName)
                             print(mapName)
                             print(f"loaded {i}")
+                            result = mapSearching(mapSearch, mapName)
                             #mapDifferenceExists = False
                         else:
                             mapDifferenceExists = True
                     break
                 idx += 1
-        screen.blit(mapSearchText, (382,52))
+        screen.blit(mapSearchText, (370,32-mapSearchText.get_height()))
         screen.blit(noMapSearchResults, (382,70))
         #screen.blit(dialogue,(0,32))
         pygame.draw.rect(screen, (0,0,0), mouseHitbox)
 
         if mapDifferenceExists:
             mapNotSavedText = smallFont.render(f"Map '{mapName}' has not been saved!", False, (0,0,0))
+            popup = tileList["popup-notSaved"].sprite
+            screen.blit(popup,(
+                screenWidth/2-popup.get_width()/2,
+                screenHeight/2-popup.get_height()/2))
+            '''
             pygame.draw.rect(screen,(217,201,163), mapDifferencePopup)
             pygame.draw.rect(screen,(255,255,255), mapDifferencePopupInside)
             pygame.draw.rect(screen,(0,255,0), mapDifferenceSave)
-            screen.blit(mapNotSavedText, (screenWidth/2-mapNotSavedText.get_width()/2,screenHeight/2-95))
+            '''
+            screen.blit(mapNotSavedText, (screenWidth/2-mapNotSavedText.get_width()/2,screenHeight/2-popup.get_height()/2+mapNotSavedText.get_height()+2))
 
-        clickCooldown -= 1*deltaTime
+        clickCooldown -= 2*deltaTime
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -234,8 +240,10 @@ while running:
                         menuType = "edit"
                         playerX = playerX / 2
                         playerY = playerY / 2
-                        result = mapSearching("")
+                        result = mapSearching("", mapName)
+                        mapSearch = ""
                         print("edit")
+                        noMapSearchResults = smallFont.render("", False, fontNormalColour)
                     elif menuType == "edit":
                         tileList = setupSprites()
                         resizeSprites(tileList, 2)
@@ -248,7 +256,11 @@ while running:
                     writing = False
                 elif event.key == pygame.K_BACKSPACE:
                     if ctrlDown:
+                        searchSplit = mapSearch.split()
+                        print(searchSplit[:-1])
                         mapSearch = ""
+                        for word in searchSplit[:-1]:
+                            mapSearch += f"{word} "
                     else:
                         mapSearch = mapSearch[:-1]
                 elif event.key == pygame.K_LCTRL:
@@ -257,7 +269,7 @@ while running:
                     mapSearch += event.unicode
 
                 if writing: # To make it so that the map search code doesn't run always, it is in here. It checks if writing is still true so that it doesn't run if the player stopped searching (by pressing escape)
-                    result = mapSearching(mapSearch)
+                    result = mapSearching(mapSearch,mapName)
                     if type(result) == str:
                         noMapSearchResults = smallFont.render("No results...", False, fontNormalColour)
                     else:

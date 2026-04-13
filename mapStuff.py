@@ -55,22 +55,25 @@ def loadMap(selectMap):
     except FileNotFoundError:
         print(f"File {selectMap} does not exist in this folder!")
 
-def mapSearching(input):
+def mapSearching(input, currentMap):
     searchResults = []
     for map in os.listdir(f"maps"):
-        if input.lower() in map.lower().split(".txt")[0]:
+        if input.lower() in map.lower().split(".txt")[0] and map != f"{currentMap}.txt":
             searchResults.append(map)
     if searchResults == []:
         return "No maps found..."
     else:
         return searchResults
     
-def showResultsMap(results, sprites, screen, startY, font):
+def showResultsMap(results, sprites, screen, startX, startY, font, mouse):
     entry = 0
+    hovering = False
     hitboxes = {}
     for map in results:
-        hitbox = pygame.rect.Rect(378, startY+13*entry-2, 196, 13)
-        pygame.draw.rect(screen, (220,220,220), hitbox)
+        hitbox = pygame.rect.Rect(startX, startY+12*entry-2, 128, 12)
+        if hitbox.colliderect(mouse) and not hovering:
+            pygame.draw.rect(screen, (220,220,220), hitbox)
+            hovering = True
         hitboxes.update({map:hitbox})
         with open(f"maps/{map}") as mapFile:
             idx = 0
@@ -80,15 +83,15 @@ def showResultsMap(results, sprites, screen, startY, font):
                     sizeX = lineSplit[0]
                     sizeY = lineSplit[1].split()[0]
                     text = font.render(f"{sizeX}x{sizeY}", False, (0,0,0))
-                    screen.blit(text,(574-text.get_width(),startY+12*entry))
+                    screen.blit(text,(496-text.get_width(),startY+12*entry))
                 elif idx == 1:
                     if mapFileLine == "tiledBackground\n":
-                        screen.blit(sprites["mapIconTiled"].sprite, (382,startY+12*entry))
+                        screen.blit(sprites["mapIconTiled"].sprite, (370,startY+12*entry))
                 else:
                     break
                 idx += 1
             text = font.render(f"{map.split(".txt")[0]}", False, (0,0,0))
-            screen.blit(text, (392,startY+12*entry))
+            screen.blit(text, (380,startY+12*entry))
         entry += 1
     return hitboxes
 
@@ -110,22 +113,3 @@ def checkForDifferencesMap(updatedMap, mapAsFile, sizeX, sizeY):
             except IndexError:
                 print("nothing different")
                 return False
-
-mapSearching("ner")
-result = mapSearching("map")
-if type(result) == str:
-    print("egg")
-else:
-    pass
-loadMap("newMap")
-'''
-running = False
-while running:
-    screen.fill((0,0,0))
-
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-
-pygame.quit()
-'''
